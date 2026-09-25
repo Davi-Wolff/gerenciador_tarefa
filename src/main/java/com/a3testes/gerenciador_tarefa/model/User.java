@@ -3,9 +3,11 @@ package com.a3testes.gerenciador_tarefa.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.validation.constraints.Email;
+import java.util.List;
+
 @Table
 @Entity
-@TableGenerator(name = "User")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -20,11 +22,15 @@ public class User {
     private Long id;
 
     @Column(length = 100)
-    private String nome;
+    private String username;
 
-    @Column(length = 100)
+    @Column(unique = true, length = 100)
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     private String email;
 
     @Column(length = 100)
     private String senha;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    List<Tarefa> tarefas;
 }
