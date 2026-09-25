@@ -1,31 +1,31 @@
 package com.a3testes.gerenciador_tarefa.controller;
 
-import com.a3testes.gerenciador_tarefa.DTO.request.TarefaRequest;
-import com.a3testes.gerenciador_tarefa.DTO.response.TarefaDto;
+import com.a3testes.gerenciador_tarefa.DTO.request.TarefaRequestDTO;
+import com.a3testes.gerenciador_tarefa.DTO.response.TarefaResponseDTO;
 import com.a3testes.gerenciador_tarefa.service.TarefaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/tarefa")
 public class TarefaController {
 
     private TarefaService tarefaService;
 
-    @GetMapping("/{id}")
-    private ResponseEntity<TarefaDto> findById(@PathVariable Long id){
+    @GetMapping("user/{userId}")
+    private ResponseEntity<TarefaResponseDTO> findById(@PathVariable Long id){
         return ResponseEntity.ok().body(tarefaService.findById(id));
     }
 
-    @PostMapping
-    private ResponseEntity<TarefaDto> postarTarefa(@RequestBody TarefaRequest tarefa){
-        tarefaService.save(tarefa);
+    @PostMapping("?userId={id}")
+    private ResponseEntity<TarefaResponseDTO> postarTarefa(@PathVariable Long id, @RequestBody TarefaRequestDTO tarefa){
+        tarefaService.save(userId,tarefa);
         return ResponseEntity.status(201).build();
     }
 
     @PutMapping
-    private ResponseEntity<TarefaDto> editarTarefa(@RequestBody TarefaRequest tarefa){
-        TarefaDto tarefa = tarefaService.update(tarefa);
+    private ResponseEntity<TarefaResponseDTO> editarTarefa(@RequestBody TarefaRequestDTO tarefa){
+        TarefaResponseDTO tarefa = tarefaService.update(tarefa);
         return ResponseEntity.status(201).build();
     }
 
