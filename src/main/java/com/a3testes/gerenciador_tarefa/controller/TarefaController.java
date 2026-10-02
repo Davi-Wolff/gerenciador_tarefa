@@ -6,32 +6,49 @@ import com.a3testes.gerenciador_tarefa.service.TarefaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tarefa")
 public class TarefaController {
 
-    private TarefaService tarefaService;
+    private final TarefaService tarefaService;
 
-    @GetMapping("user/{userId}")
-    private ResponseEntity<TarefaResponseDTO> findById(@PathVariable Long id){
-        return ResponseEntity.ok().body(tarefaService.findById(id));
+    public TarefaController(TarefaService tarefaService) {
+        this.tarefaService = tarefaService;
     }
 
-    @PostMapping("?userId={id}")
-    private ResponseEntity<TarefaResponseDTO> postarTarefa(@PathVariable Long id, @RequestBody TarefaRequestDTO tarefa){
-        tarefaService.save(userId,tarefa);
-        return ResponseEntity.status(201).build();
+    @PostMapping
+    public ResponseEntity<TarefaResponseDTO> postarTarefa(@RequestParam Long userId,
+                                                          @RequestBody TarefaRequestDTO tarefa) {
+        TarefaResponseDTO criada = tarefaService.criar(tarefa, userId);
+        return ResponseEntity.status(201).body(criada);
     }
 
-    @PutMapping
-    private ResponseEntity<TarefaResponseDTO> editarTarefa(@RequestBody TarefaRequestDTO tarefa){
-        TarefaResponseDTO tarefa = tarefaService.update(tarefa);
-        return ResponseEntity.status(201).build();
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<TarefaResponseDTO>> listarPorUsuario(@PathVariable Long userId) {
+        return ResponseEntity.ok(tarefaService.listarPorUsuario(userId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TarefaResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(tarefaService.buscarPorId(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TarefaResponseDTO> editarTarefa(@PathVariable Long id,
+                                                          @RequestBody TarefaRequestDTO tarefa) {
+        return ResponseEntity.ok(tarefaService.atualizar(id, tarefa));
+    }
+
+    @PatchMapping("/{id}/concluir")
+    public ResponseEntity<TarefaResponseDTO> concluirTarefa(@PathVariable Long id) {
+        return ResponseEntity.ok(tarefaService.marcarComoConcluida(id));
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<Void> deleteTarefa(@PathVariable Long id){
-        tarefaService.delete(id);
+    public ResponseEntity<Void> deleteTarefa(@PathVariable Long id) {
+        tarefaService.deletar(id);
         return ResponseEntity.status(204).build();
     }
 }

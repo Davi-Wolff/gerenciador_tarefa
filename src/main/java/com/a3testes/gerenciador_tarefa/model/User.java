@@ -3,7 +3,6 @@ package com.a3testes.gerenciador_tarefa.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.validation.constraints.Email;
 import java.util.List;
 
 @Table
@@ -25,7 +24,6 @@ public class User {
     private String username;
 
     @Column(unique = true, length = 100)
-    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     private String email;
 
     @Column(length = 100)
