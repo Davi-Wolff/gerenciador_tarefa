@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa,Long> {
     List<Tarefa> findByUserId(Long userId);
-    List<Tarefa> findByUserIdAndConcluida(Long userId, boolean concluida);
 }
