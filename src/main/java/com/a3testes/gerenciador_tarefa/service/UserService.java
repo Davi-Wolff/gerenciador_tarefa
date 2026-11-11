@@ -2,6 +2,7 @@ package com.a3testes.gerenciador_tarefa.service;
 
 import com.a3testes.gerenciador_tarefa.DTO.request.UserRequestDTO;
 import com.a3testes.gerenciador_tarefa.DTO.response.UserResponseDTO;
+import com.a3testes.gerenciador_tarefa.exception.DadosInvalidosException;
 import com.a3testes.gerenciador_tarefa.exception.EmailJaCadastradoException;
 import com.a3testes.gerenciador_tarefa.exception.UserNotFoundException;
 import com.a3testes.gerenciador_tarefa.model.User;
@@ -11,9 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
+
+    private static final Pattern EMAIL_VALIDO = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final int TAMANHO_MINIMO_SENHA = 6;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -25,6 +30,8 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO cadastrar(UserRequestDTO dto) {
+        validar(dto);
+
         if (userRepository.existsByEmail(dto.email())) {
             throw new EmailJaCadastradoException("Email já cadastrado: " + dto.email());
         }
@@ -54,6 +61,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO atualizar(Long id, UserRequestDTO dto) {
+        validar(dto);
         User user = buscarEntidadePorId(id);
 
         boolean emailMudou = !user.getEmail().equals(dto.email());
@@ -73,6 +81,18 @@ public class UserService {
     public void deletar(Long id) {
         User user = buscarEntidadePorId(id);
         userRepository.delete(user);
+    }
+
+    private void validar(UserRequestDTO dto) {
+        if (dto.username() == null || dto.username().isBlank()) {
+            throw new DadosInvalidosException("Informe o nome do usuário.");
+        }
+        if (dto.email() == null || !EMAIL_VALIDO.matcher(dto.email().trim()).matches()) {
+            throw new DadosInvalidosException("Informe um e-mail válido, como nome@email.com.");
+        }
+        if (dto.senha() == null || dto.senha().length() < TAMANHO_MINIMO_SENHA) {
+            throw new DadosInvalidosException("A senha precisa ter pelo menos 6 caracteres.");
+        }
     }
 
     private User buscarEntidadePorId(Long id) {

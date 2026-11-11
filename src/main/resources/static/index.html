@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Tarefas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-ocupado="true">
+    <header class="topo">
+        <h1>Gerenciador de Tarefas</h1>
+    </header>
+
+    <div id="aviso" class="aviso" role="status" aria-live="polite" data-testid="aviso" hidden></div>
+
+    <main class="layout">
+        <aside class="usuarios" aria-labelledby="titulo-usuarios">
+            <div class="usuarios-cabecalho">
+                <h2 id="titulo-usuarios">Usuários</h2>
+                <button type="button" id="btn-novo-usuario" class="btn-link" data-testid="btn-novo-usuario">
+                    <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                    Novo usuário
+                </button>
+            </div>
+
+            <form id="form-usuario" class="form-usuario" data-testid="form-usuario" novalidate hidden>
+                <div class="campo">
+                    <label for="usuario-nome">Nome</label>
+                    <input type="text" id="usuario-nome" name="username" maxlength="100" autocomplete="name" aria-describedby="erro-username" data-testid="input-nome">
+                    <p class="erro-campo" id="erro-username" data-testid="erro-username" hidden></p>
+                </div>
+                <div class="campo">
+                    <label for="usuario-email">E-mail</label>
+                    <input type="email" id="usuario-email" name="email" maxlength="100" autocomplete="email" inputmode="email" aria-describedby="erro-email" data-testid="input-email">
+                    <p class="erro-campo" id="erro-email" data-testid="erro-email" hidden></p>
+                </div>
+                <div class="campo">
+                    <label for="usuario-senha">Senha</label>
+                    <input type="password" id="usuario-senha" name="senha" autocomplete="new-password" aria-describedby="ajuda-senha erro-senha" data-testid="input-senha">
+                    <p class="ajuda-campo" id="ajuda-senha">Mínimo de 6 caracteres.</p>
+                    <p class="erro-campo" id="erro-senha" data-testid="erro-senha" hidden></p>
+                </div>
+                <div class="form-acoes">
+                    <button type="submit" class="btn btn-secundario" data-testid="btn-cadastrar-usuario">Cadastrar usuário</button>
+                    <button type="button" id="btn-cancelar-usuario" class="btn-link">Cancelar</button>
+                </div>
+            </form>
+
+            <ul id="lista-usuarios" class="lista-usuarios" data-testid="lista-usuarios" aria-busy="true"></ul>
+        </aside>
+
+        <section class="tarefas" aria-live="polite">
+            <div id="estado-carregando" class="carregando" aria-label="Carregando tarefas">
+                <div class="skeleton skeleton-titulo"></div>
+                <div class="skeleton skeleton-linha"></div>
+                <div class="skeleton skeleton-linha"></div>
+                <div class="skeleton skeleton-linha"></div>
+            </div>
+
+            <div id="estado-erro" class="estado-erro" data-testid="estado-erro" hidden>
+                <h2>Não foi possível carregar os dados</h2>
+                <p>A API não respondeu. Inicie o projeto com <code>mvn spring-boot:run</code> e tente de novo.</p>
+                <button type="button" id="btn-tentar-novamente" class="btn btn-secundario">Tentar de novo</button>
+            </div>
+
+            <div id="sem-usuario" class="estado-vazio" data-testid="sem-usuario" hidden>
+                <h2>Nenhum usuário cadastrado</h2>
+                <p>As tarefas ficam ligadas a um usuário. Cadastre o primeiro para começar.</p>
+                <button type="button" id="btn-primeiro-usuario" class="btn">Cadastrar usuário</button>
+            </div>
+
+            <div id="conteudo-tarefas" hidden>
+                <div class="tarefas-cabecalho">
+                    <div>
+                        <h2 id="nome-usuario" data-testid="nome-usuario"></h2>
+                        <p id="email-usuario" class="secundario" data-testid="email-usuario"></p>
+                    </div>
+                    <button type="button" id="btn-excluir-usuario" class="btn-perigo" data-testid="btn-excluir-usuario">Excluir usuário</button>
+                </div>
+
+                <form id="form-tarefa" class="form-tarefa" data-testid="form-tarefa" novalidate>
+                    <div class="campo">
+                        <label for="tarefa-titulo">Título</label>
+                        <input type="text" id="tarefa-titulo" name="titulo" maxlength="255" autocomplete="off" aria-describedby="erro-titulo" data-testid="input-titulo">
+                        <p class="erro-campo" id="erro-titulo" data-testid="erro-titulo" hidden></p>
+                    </div>
+                    <div class="campo">
+                        <label for="tarefa-descricao">Descrição <span class="opcional">(opcional)</span></label>
+                        <input type="text" id="tarefa-descricao" name="descricao" maxlength="255" autocomplete="off" data-testid="input-descricao">
+                    </div>
+                    <button type="submit" class="btn" data-testid="btn-adicionar-tarefa">
+                        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Adicionar tarefa
+                    </button>
+                </form>
+
+                <div class="filtros" role="group" aria-label="Filtrar tarefas">
+                    <button type="button" class="filtro ativo" data-filtro="todas" data-testid="filtro-todas" aria-pressed="true">Todas <span id="qtd-todas" data-testid="qtd-todas">0</span></button>
+                    <button type="button" class="filtro" data-filtro="pendentes" data-testid="filtro-pendentes" aria-pressed="false">Pendentes <span id="qtd-pendentes" data-testid="qtd-pendentes">0</span></button>
+                    <button type="button" class="filtro" data-filtro="concluidas" data-testid="filtro-concluidas" aria-pressed="false">Concluídas <span id="qtd-concluidas" data-testid="qtd-concluidas">0</span></button>
+                </div>
+
+                <ul id="lista-tarefas" class="lista-tarefas" data-testid="lista-tarefas"></ul>
+                <p id="sem-tarefas" class="vazio" data-testid="sem-tarefas" hidden></p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package com.a3testes.gerenciador_tarefa.service;
 
 import com.a3testes.gerenciador_tarefa.DTO.request.TarefaRequestDTO;
 import com.a3testes.gerenciador_tarefa.DTO.response.TarefaResponseDTO;
+import com.a3testes.gerenciador_tarefa.exception.DadosInvalidosException;
 import com.a3testes.gerenciador_tarefa.exception.TarefaNotFoundException;
 import com.a3testes.gerenciador_tarefa.exception.UserNotFoundException;
 import com.a3testes.gerenciador_tarefa.model.Tarefa;
@@ -28,6 +29,7 @@ public class TarefaService {
 
     @Transactional
     public TarefaResponseDTO criar(TarefaRequestDTO dto, Long userId) {
+        validar(dto);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado: id " + userId));
 
@@ -62,6 +64,7 @@ public class TarefaService {
 
     @Transactional
     public TarefaResponseDTO atualizar(Long id, TarefaRequestDTO dto) {
+        validar(dto);
         Tarefa tarefa = buscarEntidadePorId(id);
         tarefa.setTitulo(dto.titulo());
         tarefa.setDescricao(dto.descricao());
@@ -83,6 +86,12 @@ public class TarefaService {
     public void deletar(Long id) {
         Tarefa tarefa = buscarEntidadePorId(id);
         tarefaRepository.delete(tarefa);
+    }
+
+    private void validar(TarefaRequestDTO dto) {
+        if (dto.titulo() == null || dto.titulo().isBlank()) {
+            throw new DadosInvalidosException("Informe um título para a tarefa.");
+        }
     }
 
     private Tarefa buscarEntidadePorId(Long id) {
