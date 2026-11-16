@@ -12,6 +12,7 @@ Equipe: Yuri Trés, Davi Wolff, Beatriz Teixeira.
 - Cadastro, edição, conclusão e exclusão de tarefas por usuário
 - Filtro de tarefas: todas, pendentes e concluídas
 - Validação de dados no frontend e na API (nome, e-mail, senha com no mínimo 6 caracteres, título)
+- E-mail gravado em minúsculas: `Yuri@Email.com` e `yuri@email.com` são o mesmo usuário
 
 ## Requisitos de ambiente
 
@@ -71,8 +72,10 @@ Nenhuma credencial pessoal é necessária.
 | --- | --- |
 | `mvn clean test` | Todos os testes (unitários + Selenium) |
 | `mvn test -Dtest='*ServiceTest,GlobalExceptionHandlerTest'` | Só os testes unitários |
+| `mvn test -Dtest=ApiErrosIntegrationTest` | Só os testes HTTP da API |
 | `mvn test -Dtest=GerenciadorTarefaE2ETest` | Só o Selenium, com o Chrome visível |
 | `mvn test -Dtest=GerenciadorTarefaE2ETest -Dheadless=true` | Só o Selenium, sem abrir janela |
+| `mvn test -Dtest=GerenciadorTarefaE2ETest -Dlento=800` | Só o Selenium, em modo apresentação: pausa de 800 ms após cada ação |
 | `mvn surefire-report:report` | Gera relatório HTML em `target/reports/surefire.html` |
 
 ### Testes unitários (`src/test/java/.../service` e `.../exception`)
@@ -82,6 +85,12 @@ Nenhuma credencial pessoal é necessária.
 - `GlobalExceptionHandlerTest`: códigos HTTP 400, 404 e 409 devolvidos pela API.
 
 Usam Mockito para isolar o banco de dados, então não dependem de serviços externos.
+
+### Testes de integração da API (`src/test/java/.../api/ApiErrosIntegrationTest.java`)
+
+Sobem a aplicação numa porta livre e fazem requisições HTTP reais com o `HttpClient` do Java, conferindo o código
+de status e a mensagem: 404 para usuário ou tarefa inexistente, 409 para e-mail duplicado (inclusive com letras
+maiúsculas) e 400 para e-mail inválido, senha curta e tarefa sem título.
 
 ### Testes Selenium (`src/test/java/.../e2e/GerenciadorTarefaE2ETest.java`)
 
@@ -101,6 +110,7 @@ então a ordem de execução não importa.
 | CT-08 | Filtros separam pendentes e concluídas |
 | CT-09 | Editar título de uma tarefa |
 | CT-10 | Excluir tarefa somente após confirmação |
+| CT-20 | Excluir usuário somente após confirmação |
 
 Boas práticas aplicadas:
 
@@ -108,6 +118,7 @@ Boas práticas aplicadas:
 - Esperas explícitas com `WebDriverWait`, sem `Thread.sleep`. Após cada ação, o teste espera o atributo
   `data-ocupado="false"` no `<body>`, que a página só marca quando todas as requisições terminaram.
 - Gerenciador de senhas do Chrome desativado no navegador de teste, para nenhum pop-up interromper a automação.
+- O modo apresentação (`-Dlento`) só adiciona pausas para quem está assistindo; sem ele, os testes não têm nenhuma espera fixa.
 
 ### Evidências
 
@@ -117,14 +128,20 @@ Boas práticas aplicadas:
 ## Estrutura
 
 ```
+frontend/                      Interface web (HTML, CSS, JS)
 src/main/java/.../controller   Endpoints REST
 src/main/java/.../service      Regras de negócio e validações
 src/main/java/.../exception    Exceções e tratamento global de erros
-src/main/resources/static      Frontend (HTML, CSS, JS)
+src/main/resources             Configuração da aplicação
 src/test/java/.../service      Testes unitários
 src/test/java/.../exception    Testes do tratamento de erros
+src/test/java/.../api          Testes HTTP da API
 src/test/java/.../e2e          Testes Selenium
 ```
+
+O frontend fica separado na pasta `frontend/`. No build, o Maven copia essa pasta para dentro da aplicação
+(configuração `<resources>` do `pom.xml`), e o Spring Boot a serve em `http://localhost:8080`. Depois de alterar
+um arquivo do frontend com a aplicação rodando, reinicie o `mvn spring-boot:run` para ver a mudança.
 
 ## Limitações
 
