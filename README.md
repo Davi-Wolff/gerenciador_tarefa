@@ -12,7 +12,7 @@ Equipe: Yuri Trés, Davi Wolff, Beatriz Teixeira.
 - Cadastro, edição, conclusão e exclusão de tarefas por usuário
 - Filtro de tarefas: todas, pendentes e concluídas
 - Validação de dados no frontend e na API (nome, e-mail, senha com no mínimo 6 caracteres, título)
-- E-mail gravado em minúsculas: `Yuri@Email.com` e `yuri@email.com` são o mesmo usuário
+- E-mail gravado em minúsculas: `Teste@Email.com` e `teste@email.com` são o mesmo usuário
 
 ## Requisitos de ambiente
 
